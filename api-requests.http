@@ -1,0 +1,327 @@
+### Variables
+@baseUrl = http://localhost:8080/api
+@token = TU_TOKEN_AQUI
+@adminToken = TOKEN_ADMIN_AQUI
+@pedidoId = ID_DEL_PEDIDO
+
+### ==============================================
+### AUTENTICACIÓN
+### ==============================================
+
+### 1. Registrar Usuario
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "nuevo@example.com",
+  "password": "123456",
+  "nombre": "Usuario Nuevo",
+  "telefono": "+56912345678",
+  "direccion": "Av. Ejemplo 123, Santiago"
+}
+
+### 2. Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@example.com",
+  "password": "user123"
+}
+
+### 3. Login Admin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@pasteleria.com",
+  "password": "admin123"
+}
+
+### 4. Verificar Token
+GET {{baseUrl}}/auth/verify
+Authorization: Bearer {{token}}
+
+### 5. Logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{token}}
+
+### ==============================================
+### GESTIÓN DE USUARIO
+### ==============================================
+
+### 6. Obtener Perfil
+GET {{baseUrl}}/usuarios/perfil
+Authorization: Bearer {{token}}
+
+### 7. Actualizar Perfil
+PUT {{baseUrl}}/usuarios/perfil
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Juan Pérez Actualizado",
+  "telefono": "+56987654321",
+  "direccion": "Nueva Dirección 789",
+  "fechaNacimiento": "1990-05-15",
+  "codigoDescuento": "FELICES50"
+}
+
+### 8. Cambiar Contraseña
+PUT {{baseUrl}}/usuarios/perfil/password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "oldPassword": "user123",
+  "newPassword": "nuevaPassword123"
+}
+
+### 9. Agregar Dirección
+POST {{baseUrl}}/usuarios/perfil/direcciones
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "direccion": "Calle Nueva 999, Concepción, Región del Biobío"
+}
+
+### 10. Eliminar Dirección
+DELETE {{baseUrl}}/usuarios/perfil/direcciones
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "direccion": "Calle Nueva 999, Concepción, Región del Biobío"
+}
+
+### ==============================================
+### GESTIÓN DE PEDIDOS
+### ==============================================
+
+### 11. Crear Pedido (1 producto)
+POST {{baseUrl}}/pedidos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "productos": [
+    {
+      "productoId": "prod-001",
+      "cantidad": 2,
+      "personalizacion": "Feliz cumpleaños María"
+    }
+  ],
+  "direccionEnvio": "Av. Principal 123, Santiago",
+  "metodoPago": "tarjeta",
+  "tarjetaUltimos4": "1234",
+  "codigoDescuento": "FELICES50"
+}
+
+### 12. Crear Pedido (múltiples productos)
+POST {{baseUrl}}/pedidos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "productos": [
+    {
+      "productoId": "prod-001",
+      "cantidad": 1,
+      "personalizacion": "Feliz cumpleaños"
+    },
+    {
+      "productoId": "prod-002",
+      "cantidad": 2,
+      "personalizacion": null
+    },
+    {
+      "productoId": "prod-005",
+      "cantidad": 3,
+      "personalizacion": null
+    }
+  ],
+  "direccionEnvio": "Av. Principal 123, Santiago",
+  "metodoPago": "efectivo",
+  "tarjetaUltimos4": null
+}
+
+### 13. Obtener Historial de Pedidos (todos)
+GET {{baseUrl}}/pedidos?page=1&limit=10
+Authorization: Bearer {{token}}
+
+### 14. Obtener Pedidos Pendientes
+GET {{baseUrl}}/pedidos?estado=PENDIENTE&page=1&limit=10
+Authorization: Bearer {{token}}
+
+### 15. Obtener Pedidos En Proceso
+GET {{baseUrl}}/pedidos?estado=EN_PROCESO&page=1&limit=10
+Authorization: Bearer {{token}}
+
+### 16. Obtener Detalle de un Pedido
+GET {{baseUrl}}/pedidos/{{pedidoId}}
+Authorization: Bearer {{token}}
+
+### 17. Cancelar Pedido
+POST {{baseUrl}}/pedidos/{{pedidoId}}/cancelar
+Authorization: Bearer {{token}}
+
+### ==============================================
+### ENDPOINTS DE ADMINISTRADOR
+### ==============================================
+
+### 18. Listar Todos los Usuarios
+GET {{baseUrl}}/admin/usuarios?page=1&limit=20
+Authorization: Bearer {{adminToken}}
+
+### 19. Listar Usuarios con Filtro por Rol
+GET {{baseUrl}}/admin/usuarios?page=1&limit=20&rol=USER
+Authorization: Bearer {{adminToken}}
+
+### 20. Actualizar Usuario (cambiar rol a ADMIN)
+PATCH {{baseUrl}}/admin/usuarios/user-001
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "nombre": "Usuario Promocionado",
+  "rol": "ADMIN",
+  "descuentoEspecial": 20
+}
+
+### 21. Actualizar Usuario (aplicar descuento especial)
+PATCH {{baseUrl}}/admin/usuarios/user-001
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "descuentoEspecial": 15
+}
+
+### 22. Eliminar Usuario
+DELETE {{baseUrl}}/admin/usuarios/user-001
+Authorization: Bearer {{adminToken}}
+
+### 23. Listar Todos los Pedidos
+GET {{baseUrl}}/admin/pedidos?page=1&limit=20
+Authorization: Bearer {{adminToken}}
+
+### 24. Listar Pedidos por Estado
+GET {{baseUrl}}/admin/pedidos?estado=PENDIENTE&page=1&limit=20
+Authorization: Bearer {{adminToken}}
+
+### 25. Listar Pedidos por Fecha
+GET {{baseUrl}}/admin/pedidos?fechaInicio=2025-12-01T00:00:00&fechaFin=2025-12-31T23:59:59&page=1&limit=20
+Authorization: Bearer {{adminToken}}
+
+### 26. Actualizar Estado de Pedido a EN_PROCESO
+PATCH {{baseUrl}}/admin/pedidos/{{pedidoId}}/estado
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "estado": "EN_PROCESO"
+}
+
+### 27. Actualizar Estado de Pedido a ENTREGADO
+PATCH {{baseUrl}}/admin/pedidos/{{pedidoId}}/estado
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "estado": "ENTREGADO"
+}
+
+### 28. Actualizar Estado de Pedido a CANCELADO
+PATCH {{baseUrl}}/admin/pedidos/{{pedidoId}}/estado
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "estado": "CANCELADO"
+}
+
+### ==============================================
+### CASOS DE PRUEBA - ERRORES
+### ==============================================
+
+### 29. Error: Email ya existe
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "usuario@example.com",
+  "password": "123456",
+  "nombre": "Duplicado"
+}
+
+### 30. Error: Credenciales inválidas
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@example.com",
+  "password": "passwordIncorrecto"
+}
+
+### 31. Error: Sin token (debe fallar)
+GET {{baseUrl}}/usuarios/perfil
+
+### 32. Error: Stock insuficiente
+POST {{baseUrl}}/pedidos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "productos": [
+    {
+      "productoId": "prod-001",
+      "cantidad": 999,
+      "personalizacion": null
+    }
+  ],
+  "direccionEnvio": "Av. Principal 123",
+  "metodoPago": "efectivo"
+}
+
+### 33. Error: Producto no encontrado
+POST {{baseUrl}}/pedidos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "productos": [
+    {
+      "productoId": "prod-inexistente",
+      "cantidad": 1,
+      "personalizacion": null
+    }
+  ],
+  "direccionEnvio": "Av. Principal 123",
+  "metodoPago": "efectivo"
+}
+
+### 34. Error: Acceso denegado (usuario normal intentando acceder a endpoint admin)
+GET {{baseUrl}}/admin/usuarios
+Authorization: Bearer {{token}}
+
+### 35. Error: Contraseña actual incorrecta
+PUT {{baseUrl}}/usuarios/perfil/password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "oldPassword": "passwordIncorrecto",
+  "newPassword": "nuevaPassword123"
+}
+
+### ==============================================
+### NOTAS
+### ==============================================
+# 
+# 1. Reemplaza {{token}} con el token JWT obtenido del login
+# 2. Reemplaza {{adminToken}} con el token del usuario admin
+# 3. Reemplaza {{pedidoId}} con un ID de pedido válido
+# 4. Los estados de pedido válidos son: PENDIENTE, EN_PROCESO, ENTREGADO, CANCELADO
+# 5. Para usar este archivo necesitas la extensión "REST Client" en VS Code
+#    o importar las peticiones a Postman
