@@ -29,6 +29,12 @@ public class AuthController {
     
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
+        System.out.println("=== REGISTRO RECIBIDO ===");
+        System.out.println("Email: " + request.getEmail());
+        System.out.println("Nombre: " + request.getNombre());
+        System.out.println("Teléfono: " + request.getTelefono());
+        System.out.println("Dirección: " + request.getDireccion());
+        
         AuthResponse authResponse = authService.register(request);
         ApiResponse<AuthResponse> response = ApiResponse.success(
                 "Usuario registrado exitosamente", 
