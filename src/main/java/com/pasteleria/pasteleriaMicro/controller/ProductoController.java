@@ -4,6 +4,12 @@ import com.pasteleria.pasteleriaMicro.dto.ApiResponse;
 import com.pasteleria.pasteleriaMicro.dto.producto.ProductoResponse;
 import com.pasteleria.pasteleriaMicro.model.Producto;
 import com.pasteleria.pasteleriaMicro.repository.ProductoRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,17 +25,29 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/productos")
+@Tag(name = "Productos", description = "Endpoints públicos para consultar productos del catálogo")
 public class ProductoController {
     
     @Autowired
     private ProductoRepository productoRepository;
     
     @GetMapping
+    @Operation(
+        summary = "Listar productos",
+        description = "Obtiene la lista paginada de productos con filtros opcionales por categoría y disponibilidad"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Lista de productos obtenida exitosamente",
+            content = @Content(schema = @Schema(implementation = ApiResponse.class))
+        )
+    })
     public ResponseEntity<ApiResponse<Map<String, Object>>> listarProductos(
-            @RequestParam(required = false) String categoria,
-            @RequestParam(required = false) Boolean disponible,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "100") int limit) {
+            @Parameter(description = "Filtrar por categoría") @RequestParam(required = false) String categoria,
+            @Parameter(description = "Filtrar por disponibilidad") @RequestParam(required = false) Boolean disponible,
+            @Parameter(description = "Número de página (default: 1)") @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "Productos por página (default: 100, max: 100)") @RequestParam(defaultValue = "100") int limit) {
         
         // Validar parámetros
         if (page < 1) page = 1;
@@ -69,7 +87,23 @@ public class ProductoController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductoResponse>> obtenerProducto(@PathVariable String id) {
+    @Operation(
+        summary = "Obtener producto por ID",
+        description = "Obtiene los detalles de un producto específico usando su código único"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Producto encontrado",
+            content = @Content(schema = @Schema(implementation = ProductoResponse.class))
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "Producto no encontrado"
+        )
+    })
+    public ResponseEntity<ApiResponse<ProductoResponse>> obtenerProducto(
+            @Parameter(description = "Código único del producto (ej: TC001)") @PathVariable String id) {
         Producto producto = productoRepository.findById(id)
                 .orElse(null);
         
